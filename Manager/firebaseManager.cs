@@ -9,37 +9,36 @@ using Google;
 using Firebase.Auth;
 using Firebase;
 
-public class firebaseController : MonoBehaviour
+public enum firebase
 {
-    [SerializeField] GameObject BackGroundUI;
-    [SerializeField] Text LogInState;
-    [Header("LogIn")]
-    [SerializeField] GameObject LogInUI;
-    //[SerializeField] Button LogInBtn;
-    [Header("LogOut")]
-    [SerializeField] GameObject LogOutUI;
-    //[SerializeField] Button LogOutBtn;
-    //[SerializeField] Button StartBtn;
+    LogIn,
+    LogOut,
 
+}
+
+public class firebaseManager
+{
     FirebaseAuth auth;
     FirebaseUser user;
-    void Start()
+    public FirebaseUser GetUser => user;
+
+    public firebaseManager()
     {
         PlayGamesPlatform.DebugLogEnabled = true;
         PlayGamesPlatform.Activate();
-        LogIn();
-
     }
+
+    public Action<bool,string> StateUI;
 
     public void LogIn()
     {
-        LogInState.text = "로그인 중...";
-        LogInUI.SetActive(false);
+        //StateUI?.Invoke(false, "로그인 중...");
+
         PlayGamesPlatform.Instance.Authenticate((status) =>
         {
             if (status == SignInStatus.Success)
             {
-                PlayGamesPlatform.Instance.RequestServerSideAccess(false, code =>
+                PlayGamesPlatform.Instance.RequestServerSideAccess(true, code =>
                 {
                     auth = FirebaseAuth.DefaultInstance;
                     Credential credential = PlayGamesAuthProvider.GetCredential(code);
@@ -48,30 +47,27 @@ public class firebaseController : MonoBehaviour
                     {
                         if (task.IsCanceled)
                         {
-                            LogInState.text = "Auth cancelled";
+                            StateUI?.Invoke(false, "Auth cancelled");
                             return;
                         }
                         else if (task.IsFaulted)
                         {
                             int errorCode = GetFirebaseErrorCode(task.Exception);//AuthError
-                               LogInState.text = errorCode.ToString();
-                            //LogInState.text += $"id : {Social.localUser.userName}";
-                            LogInState.text += " Faulted : " + task.Exception;
+                            StateUI?.Invoke(false, $"errorCode : {errorCode} : {task.Exception}");
                             return;
                         }
                         else
                         {
                             FirebaseUser newUser = task.Result;
                             user = auth.CurrentUser;
-                            LogOutUI.SetActive(true);
-                            LogInState.text = "반갑습니다 " + newUser + "님";
+                            StateUI?.Invoke(true, $"환영합니다 {newUser.UserId}님");
                         }
                     });
                 });
             }
             else
             {
-                LogInState.text += "PGP Authernticate falled";
+                StateUI?.Invoke(false, "로그인 정보가 없습니다");
             }
         });
 
@@ -82,16 +78,9 @@ public class firebaseController : MonoBehaviour
         if (user == auth.CurrentUser && auth.CurrentUser != null)
         {
             auth.SignOut();
-            LogInState.text = "로그인";
-
-            LogOutUI.SetActive(false);
-            LogInUI.SetActive(true);
+            user = null;
+            StateUI?.Invoke(true,"로그인을 해주세요");
         }
-    }
-
-    public void GameStart()
-    {
-        BackGroundUI.SetActive(false);
     }
 
     private int GetFirebaseErrorCode(AggregateException exception)
@@ -108,4 +97,5 @@ public class firebaseController : MonoBehaviour
 
         return firebaseException?.ErrorCode ?? 0;
     }
+
 }
