@@ -4,30 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public enum Scenes
-{
-    SignIn,
-    InGame
-}
-
 public class SceneController : MonoBehaviour
 {
     [Header("로딩관련창")]
-    [SerializeField] GameObject loadingUI;
     [SerializeField] Image loadingBar;
     [SerializeField] Text loadingState;
-    Scenes nowScene;
 
-    public void ChangeScene(Scenes scene)
+    private void Start()
     {
-        if (nowScene == scene) return;
-
-        loadingUI.SetActive(true);
-        nowScene = scene;
-        StopAllCoroutines();
-       // SceneManager.LoadScene((int)nowScene);
-        StartCoroutine(LoadSceneAsync((int)nowScene));
+        Debug.Log("시작");
+        StartCoroutine(LoadSceneAsync((int)gameManger.Instance.NowScene));
     }
+
 
     IEnumerator LoadSceneAsync(int sceneNum)
     {
@@ -36,12 +24,13 @@ public class SceneController : MonoBehaviour
         loadingState.text = "로딩중...";
 
         float timer = 0f;
+        loadingBar.fillAmount = 0f;
 
-        while(!op.isDone)
+        while (!op.isDone)
         {
             yield return null;
 
-            if(op.progress < 0.9f)
+            if (op.progress < 0.9f)
             {
                 loadingBar.fillAmount = op.progress;
             }
@@ -53,7 +42,6 @@ public class SceneController : MonoBehaviour
                 if(loadingBar.fillAmount >= 1f)
                 {
                     op.allowSceneActivation = true;
-                    loadingUI.SetActive(false);
                     yield break;
                 }
 

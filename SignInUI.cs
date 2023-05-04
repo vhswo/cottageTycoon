@@ -8,6 +8,7 @@ public enum SignState
     SignOut,
     SignIn,
 }
+
 public class SignInUI : MonoBehaviour
 {
     [SerializeField] GameObject BackGroundUI;
@@ -27,6 +28,8 @@ public class SignInUI : MonoBehaviour
 
     public void SignIn()
     {
+        if (LogInState.text == "로그인 중...") return;
+
         gameManger.Instance.UseFirebase(firebase.LogIn);
     }
 
@@ -47,6 +50,7 @@ public class SignInUI : MonoBehaviour
     }
     public void GameStart()
     {
+        gameManger.Instance.Firebase.StateUI -= UpdateStateText;
         gameManger.Instance.ChangeScene(Scenes.InGame);
     }
 

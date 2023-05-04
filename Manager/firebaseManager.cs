@@ -32,7 +32,7 @@ public class firebaseManager
 
     public void LogIn()
     {
-        //StateUI?.Invoke(false, "로그인 중...");
+        StateUI?.Invoke(false, "로그인 중...");
 
         PlayGamesPlatform.Instance.Authenticate((status) =>
         {

@@ -1,6 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
+
+public enum Scenes
+{
+    SignIn,
+    InGame,
+    Loding,
+}
 
 public class gameManger : MonoBehaviour
 {
@@ -11,8 +19,8 @@ public class gameManger : MonoBehaviour
     firebaseManager firebaseMgr;
     public firebaseManager Firebase => firebaseMgr;
 
-
-    [SerializeField] SceneController sceneController;
+    Scenes nowScene = Scenes.SignIn;
+    public Scenes NowScene => nowScene;
 
     private void Awake()
     {
@@ -36,6 +44,7 @@ public class gameManger : MonoBehaviour
 
     public void UseFirebase(firebase use)
     {
+
         switch (use)
         {
             case firebase.LogIn:
@@ -51,7 +60,11 @@ public class gameManger : MonoBehaviour
 
     public void ChangeScene(Scenes scene)
     {
-        sceneController.ChangeScene(scene);
+        if (nowScene == scene) return;
+
+        nowScene = scene;
+
+        SceneManager.LoadScene((int)Scenes.Loding);
     }
 
 }
