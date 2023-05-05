@@ -5,14 +5,14 @@ using UnityEngine;
 
 public class InGameController : MonoBehaviour
 {
-    Text score;
-    Image profile;
+    [SerializeField] InGameUI UI; // 인게임 UI로 교체 예정
+
     GameObject setting;
 
-    public void ReturnLogIn()
+    private void Start()
     {
-        gameManger.Instance.ChangeScene(Scenes.SignIn);
     }
+
 
     public void SetSetting()
     {
